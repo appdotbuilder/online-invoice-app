@@ -1,30 +1,45 @@
 
+import { db } from '../db';
+import { invoicesTable } from '../db/schema';
+import { eq } from 'drizzle-orm';
 import { type UpdateInvoiceStatusInput, type Invoice } from '../schema';
 
 export async function updateInvoiceStatus(input: UpdateInvoiceStatusInput): Promise<Invoice> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is updating the status of an invoice.
-    // Should also update the updated_at timestamp.
-    return Promise.resolve({
-        id: input.id,
-        invoice_number: 'INV-000001',
-        customer_id: 1,
-        invoice_date: new Date(),
-        due_date: new Date(),
-        subtotal: 0,
-        tax_rate: 11,
-        tax_amount: 0,
-        discount_rate: 0,
-        discount_amount: 0,
-        total_amount: 0,
-        payment_method: 'Bank Transfer',
+  try {
+    // First verify the invoice exists
+    const existingInvoice = await db.select()
+      .from(invoicesTable)
+      .where(eq(invoicesTable.id, input.id))
+      .execute();
+
+    if (existingInvoice.length === 0) {
+      throw new Error(`Invoice with id ${input.id} not found`);
+    }
+
+    // Update the invoice status and updated_at timestamp
+    const result = await db.update(invoicesTable)
+      .set({
         status: input.status,
-        notes: null,
-        seller_name: 'Seller',
-        seller_email: null,
-        seller_phone: null,
-        seller_address: null,
-        created_at: new Date(),
         updated_at: new Date()
-    } as Invoice);
+      })
+      .where(eq(invoicesTable.id, input.id))
+      .returning()
+      .execute();
+
+    const updatedInvoice = result[0];
+
+    // Convert numeric fields back to numbers before returning
+    return {
+      ...updatedInvoice,
+      subtotal: parseFloat(updatedInvoice.subtotal),
+      tax_rate: parseFloat(updatedInvoice.tax_rate),
+      tax_amount: parseFloat(updatedInvoice.tax_amount),
+      discount_rate: parseFloat(updatedInvoice.discount_rate),
+      discount_amount: parseFloat(updatedInvoice.discount_amount),
+      total_amount: parseFloat(updatedInvoice.total_amount)
+    };
+  } catch (error) {
+    console.error('Invoice status update failed:', error);
+    throw error;
+  }
 }
