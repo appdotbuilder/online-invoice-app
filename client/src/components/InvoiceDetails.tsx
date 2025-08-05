@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
-import { ArrowLeft, Download, Printer, Send, DollarSign, Calendar, User, Building } from 'lucide-react';
+import { ArrowLeft, Printer, DollarSign, Calendar, User, Building } from 'lucide-react';
 import type { InvoiceWithDetails, InvoiceStatus } from '../../../server/src/schema';
 
 interface InvoiceDetailsProps {
@@ -76,17 +76,9 @@ export function InvoiceDetails({ invoiceDetails, onStatusUpdate, onBack }: Invoi
             </SelectContent>
           </Select>
           
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="w-4 h-4 mr-2" />
             Print
-          </Button>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            PDF
-          </Button>
-          <Button size="sm">
-            <Send className="w-4 h-4 mr-2" />
-            Kirim
           </Button>
         </div>
       </div>
@@ -318,14 +310,6 @@ export function InvoiceDetails({ invoiceDetails, onStatusUpdate, onBack }: Invoi
               <Button variant="outline" className="w-full" size="sm">
                 <DollarSign className="w-4 h-4 mr-2" />
                 Catat Pembayaran
-              </Button>
-              <Button variant="outline" className="w-full" size="sm">
-                <Send className="w-4 h-4 mr-2" />
-                Kirim Reminder
-              </Button>
-              <Button variant="outline" className="w-full" size="sm">
-                <Printer className="w-4 h-4 mr-2" />
-                Print Invoice
               </Button>
             </CardContent>
           </Card>
