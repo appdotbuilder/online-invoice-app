@@ -9,7 +9,11 @@ import { z } from 'zod';
 // Import schemas
 import {
   createCustomerInputSchema,
+  updateCustomerInputSchema,
+  deleteCustomerInputSchema,
   createInvoiceInputSchema,
+  updateInvoiceInputSchema,
+  deleteInvoiceInputSchema,
   updateInvoiceStatusInputSchema,
   createPaymentInputSchema,
   adminLoginInputSchema
@@ -17,8 +21,12 @@ import {
 
 // Import handlers
 import { createCustomer } from './handlers/create_customer';
+import { updateCustomer } from './handlers/update_customer';
+import { deleteCustomer } from './handlers/delete_customer';
 import { getCustomers } from './handlers/get_customers';
 import { createInvoice } from './handlers/create_invoice';
+import { updateInvoice } from './handlers/update_invoice';
+import { deleteInvoice } from './handlers/delete_invoice';
 import { getInvoices } from './handlers/get_invoices';
 import { getInvoiceDetails } from './handlers/get_invoice_details';
 import { updateInvoiceStatus } from './handlers/update_invoice_status';
@@ -44,6 +52,14 @@ const appRouter = router({
     .input(createCustomerInputSchema)
     .mutation(({ input }) => createCustomer(input)),
   
+  updateCustomer: publicProcedure
+    .input(updateCustomerInputSchema)
+    .mutation(({ input }) => updateCustomer(input)),
+
+  deleteCustomer: publicProcedure
+    .input(deleteCustomerInputSchema)
+    .mutation(({ input }) => deleteCustomer(input)),
+  
   getCustomers: publicProcedure
     .query(() => getCustomers()),
 
@@ -58,6 +74,14 @@ const appRouter = router({
   getInvoiceDetails: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(({ input }) => getInvoiceDetails(input.id)),
+  
+  updateInvoice: publicProcedure
+    .input(updateInvoiceInputSchema)
+    .mutation(({ input }) => updateInvoice(input)),
+
+  deleteInvoice: publicProcedure
+    .input(deleteInvoiceInputSchema)
+    .mutation(({ input }) => deleteInvoice(input)),
   
   updateInvoiceStatus: publicProcedure
     .input(updateInvoiceStatusInputSchema)

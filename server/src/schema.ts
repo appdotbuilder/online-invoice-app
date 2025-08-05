@@ -128,6 +128,55 @@ export const createPaymentInputSchema = z.object({
 
 export type CreatePaymentInput = z.infer<typeof createPaymentInputSchema>;
 
+// Input schemas for updating entities
+export const updateCustomerInputSchema = z.object({
+  id: z.number(),
+  name: z.string().min(1).optional(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  postal_code: z.string().nullable().optional(),
+});
+
+export type UpdateCustomerInput = z.infer<typeof updateCustomerInputSchema>;
+
+export const deleteCustomerInputSchema = z.object({
+  id: z.number(),
+});
+
+export type DeleteCustomerInput = z.infer<typeof deleteCustomerInputSchema>;
+
+export const updateInvoiceInputSchema = z.object({
+  id: z.number(),
+  customer_id: z.number().optional(),
+  due_date: z.coerce.date().optional(),
+  tax_rate: z.number().min(0).max(100).optional(),
+  discount_rate: z.number().min(0).max(100).optional(),
+  payment_method: paymentMethodSchema.optional(),
+  status: invoiceStatusSchema.optional(),
+  notes: z.string().nullable().optional(),
+  seller_name: z.string().min(1).optional(),
+  seller_email: z.string().email().nullable().optional(),
+  seller_phone: z.string().nullable().optional(),
+  seller_address: z.string().nullable().optional(),
+  // When updating, items can be optional if not changing them, but if provided, must be valid
+  items: z.array(z.object({
+    id: z.number().optional(), // ID is optional for existing items if they are being updated, or not present for new ones within an update
+    description: z.string().min(1),
+    quantity: z.number().positive(),
+    unit_price: z.number().positive()
+  })).optional(),
+});
+
+export type UpdateInvoiceInput = z.infer<typeof updateInvoiceInputSchema>;
+
+export const deleteInvoiceInputSchema = z.object({
+  id: z.number(),
+});
+
+export type DeleteInvoiceInput = z.infer<typeof deleteInvoiceInputSchema>;
+
 // Admin login schema
 export const adminLoginInputSchema = z.object({
   username: z.string().min(1, "Username is required"),
