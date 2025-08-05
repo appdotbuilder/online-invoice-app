@@ -11,7 +11,8 @@ import {
   createCustomerInputSchema,
   createInvoiceInputSchema,
   updateInvoiceStatusInputSchema,
-  createPaymentInputSchema
+  createPaymentInputSchema,
+  adminLoginInputSchema
 } from './schema';
 
 // Import handlers
@@ -24,6 +25,7 @@ import { updateInvoiceStatus } from './handlers/update_invoice_status';
 import { createPayment } from './handlers/create_payment';
 import { getPayments } from './handlers/get_payments';
 import { checkOverdueInvoices } from './handlers/check_overdue_invoices';
+import { adminLogin } from './handlers/admin_login';
 
 const t = initTRPC.create({
   transformer: superjson,
@@ -73,6 +75,11 @@ const appRouter = router({
   // Utility routes
   checkOverdueInvoices: publicProcedure
     .mutation(() => checkOverdueInvoices()),
+
+  // Admin routes
+  adminLogin: publicProcedure
+    .input(adminLoginInputSchema)
+    .mutation(({ input }) => adminLogin(input)),
 });
 
 export type AppRouter = typeof appRouter;

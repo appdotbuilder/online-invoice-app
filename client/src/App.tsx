@@ -4,16 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FileText, Users, DollarSign, Clock, AlertTriangle } from 'lucide-react';
+import { Plus, FileText, Users, DollarSign, Clock, AlertTriangle, LogOut } from 'lucide-react';
 import { trpc } from '@/utils/trpc';
 import { InvoiceForm } from '@/components/InvoiceForm';
 import { CustomerForm } from '@/components/CustomerForm';
 import { InvoiceList } from '@/components/InvoiceList';
 import { CustomerList } from '@/components/CustomerList';
 import { InvoiceDetails } from '@/components/InvoiceDetails';
+import { AdminLogin } from '@/components/AdminLogin';
 import type { Invoice, Customer, InvoiceWithDetails, InvoiceStatus } from '../../server/src/schema';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithDetails | null>(null);
@@ -22,28 +24,44 @@ function App() {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleLoginSuccess = useCallback(() => {
+    setIsLoggedIn(true);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    setIsLoggedIn(false);
+    setSelectedInvoice(null);
+    setInvoices([]);
+    setCustomers([]);
+    setActiveTab('dashboard');
+  }, []);
+
   const loadInvoices = useCallback(async () => {
+    if (!isLoggedIn) return;
     try {
       const result = await trpc.getInvoices.query();
       setInvoices(result);
     } catch (error) {
       console.error('Failed to load invoices:', error);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   const loadCustomers = useCallback(async () => {
+    if (!isLoggedIn) return;
     try {
       const result = await trpc.getCustomers.query();
       setCustomers(result);
     } catch (error) {
       console.error('Failed to load customers:', error);
     }
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
-    loadInvoices();
-    loadCustomers();
-  }, [loadInvoices, loadCustomers]);
+    if (isLoggedIn) {
+      loadInvoices();
+      loadCustomers();
+    }
+  }, [isLoggedIn, loadInvoices, loadCustomers]);
 
   const handleInvoiceCreated = useCallback(async (invoice: Invoice) => {
     setInvoices((prev: Invoice[]) => [invoice, ...prev]);
@@ -113,6 +131,10 @@ function App() {
     }
   };
 
+  if (!isLoggedIn) {
+    return <AdminLogin onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto p-6 max-w-7xl">
@@ -121,7 +143,7 @@ function App() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                💼 Invoice Manager
+                <span role="img" aria-label="invoice">🧾</span> Invoice Manager
               </h1>
               <p className="text-gray-600">
                 Kelola invoice dan pelanggan dengan mudah dan efisien
@@ -142,6 +164,14 @@ function App() {
               >
                 <Plus className="w-4 h-4" />
                 Buat Invoice
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
               </Button>
             </div>
           </div>

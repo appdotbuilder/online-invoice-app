@@ -128,6 +128,14 @@ export const createPaymentInputSchema = z.object({
 
 export type CreatePaymentInput = z.infer<typeof createPaymentInputSchema>;
 
+// Admin login schema
+export const adminLoginInputSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type AdminLoginInput = z.infer<typeof adminLoginInputSchema>;
+
 // Complete invoice with relations
 export const invoiceWithDetailsSchema = z.object({
   invoice: invoiceSchema,
